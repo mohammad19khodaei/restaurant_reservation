@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: restaurant_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: restaurant_reservation
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # TODO remove this line after finishing development
+    ports: 
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "admin", "-d", "restaurant_reservation"]
+      interval: 5s
+      retries: 5
+      timeout: 3s
+  
+  app:
+    build: .
+    container_name: restaurant_app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  migration:
+    image: migrate/migrate
+    container_name: restaurant_migration
+    volumes:
+      - ./db/migrations:/migrations
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://admin:secret@restaurant_db:5432/restaurant_reservation?sslmode=disable",
+      "up"
+    ]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+
+volumes:
+  pgdata:

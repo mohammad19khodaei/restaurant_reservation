@@ -1,0 +1,13 @@
+app:
+  testing_mode: true
+  address: ":8081"
+  shutdown_timeout: 20s
+  secret_key: 012345678901234567890123456789123456
+  token_duration: 1m
+
+db:
+  host: localhost
+  port: 5432
+  username: admin
+  password: secret
+  name: restaurant_reservation
