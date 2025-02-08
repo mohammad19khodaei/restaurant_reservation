@@ -15,7 +15,7 @@ import (
 func TestAuthMiddleware(t *testing.T) {
 	testCases := []struct {
 		name          string
-		setAuthHeader func(t *testing.T, maker token.Manager, req *http.Request)
+		setAuthHeader func(t *testing.T, manager token.Manager, req *http.Request)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
@@ -37,7 +37,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{
 			name: "with invalid header",
 			setAuthHeader: func(t *testing.T, tokenManager token.Manager, req *http.Request) {
-				token, err := tokenManager.GenerateToken("username", c.App.TokenDuration)
+				token, err := tokenManager.GenerateToken(1, c.App.TokenDuration)
 				require.NoError(t, err)
 				req.Header.Set("Authorization", fmt.Sprintf("%s %s", "unsupported", token))
 			},
@@ -48,7 +48,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{
 			name: "with expired token",
 			setAuthHeader: func(t *testing.T, tokenManager token.Manager, req *http.Request) {
-				token, err := tokenManager.GenerateToken("username", -c.App.TokenDuration)
+				token, err := tokenManager.GenerateToken(1, -c.App.TokenDuration)
 				require.NoError(t, err)
 				req.Header.Set("Authorization", fmt.Sprintf("%s %s", middlewares.AuthorizationTypeBearer, token))
 			},
@@ -59,7 +59,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{
 			name: "ok",
 			setAuthHeader: func(t *testing.T, tokenManager token.Manager, req *http.Request) {
-				token, err := tokenManager.GenerateToken("username", c.App.TokenDuration)
+				token, err := tokenManager.GenerateToken(1, c.App.TokenDuration)
 				require.NoError(t, err)
 				req.Header.Set("Authorization", fmt.Sprintf("%s %s", middlewares.AuthorizationTypeBearer, token))
 			},
@@ -69,11 +69,11 @@ func TestAuthMiddleware(t *testing.T) {
 		},
 	}
 
-	tokenMaker, err := token.NewJWTManger(c.App.SecretKey)
+	tokenManager, err := token.NewJWTManger(c.App.SecretKey)
 	require.NoError(t, err)
 	r := gin.Default()
 	authUrl := "/auth"
-	r.GET(authUrl, middlewares.AuthMiddleware(tokenMaker), func(ctx *gin.Context) {
+	r.GET(authUrl, middlewares.AuthMiddleware(tokenManager), func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{})
 	})
 
@@ -83,7 +83,7 @@ func TestAuthMiddleware(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			request := httptest.NewRequest(http.MethodGet, authUrl, nil)
 
-			tc.setAuthHeader(t, tokenMaker, request)
+			tc.setAuthHeader(t, tokenManager, request)
 			r.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})

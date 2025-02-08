@@ -15,19 +15,19 @@ var (
 
 // Payload is a struct that holds the claims for JWT
 type Payload struct {
-	Username string `json:"username"`
+	UserID int `json:"username"`
 	jwt.RegisteredClaims
 }
 
 // NewPayload creates a new Payload
-func NewPayload(username string, duration time.Duration) (*Payload, error) {
+func NewPayload(userID int, duration time.Duration) (*Payload, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
 	}
 
 	payload := &Payload{
-		Username: username,
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        id.String(),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),

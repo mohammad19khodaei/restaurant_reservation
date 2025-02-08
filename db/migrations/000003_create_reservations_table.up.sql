@@ -3,5 +3,6 @@ CREATE TABLE reservations(
     user_id bigint REFERENCES users(id),
     table_id bigint REFERENCES tables(id),
     seats_count integer NOT NULL,
+    price NUMERIC NOT NULL,
     date date NOT NULL
 );

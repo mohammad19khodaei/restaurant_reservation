@@ -8,6 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mohammad19khodaei/restaurant_reservation/config"
+	"github.com/mohammad19khodaei/restaurant_reservation/internal/domains/reservation"
+	"github.com/mohammad19khodaei/restaurant_reservation/internal/domains/table"
 	"github.com/mohammad19khodaei/restaurant_reservation/internal/domains/user"
 	"github.com/mohammad19khodaei/restaurant_reservation/internal/repositories"
 	"github.com/mohammad19khodaei/restaurant_reservation/internal/services/token"
@@ -21,7 +23,9 @@ type Application struct {
 	Router       *gin.Engine
 	DB           *gorm.DB
 	Repositories struct {
-		UserRepository user.Repository
+		UserRepository        user.Repository
+		TableRepository       table.Repository
+		ReservationRepository reservation.Repository
 	}
 	Services struct {
 		TokenManger token.Manager
@@ -67,6 +71,62 @@ func (a *Application) SetUserRepository(repository user.Repository) {
 	a.Repositories.UserRepository = repository
 }
 
+// SetReservationRepository sets the user repository for testing
+func (a *Application) SetReservationRepository(repository reservation.Repository) {
+	a.Repositories.ReservationRepository = repository
+}
+
+// InitDB initializes the database with some data
+func (a *Application) InitDB(ctx context.Context) {
+	if a.Repositories.TableRepository.GetTotalCount(ctx) > 0 {
+		return
+	}
+
+	tables := []table.Table{
+		{
+			SeatsCount: 4,
+		},
+		{
+			SeatsCount: 4,
+		},
+		{
+			SeatsCount: 4,
+		},
+		{
+			SeatsCount: 4,
+		},
+		{
+			SeatsCount: 6,
+		},
+		{
+			SeatsCount: 6,
+		},
+		{
+			SeatsCount: 6,
+		},
+		{
+			SeatsCount: 8,
+		},
+		{
+			SeatsCount: 8,
+		},
+		{
+			SeatsCount: 10,
+		},
+	}
+	for _, table := range tables {
+		err := a.Repositories.TableRepository.CreateTable(ctx, &table)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	err := a.Repositories.TableRepository.CreateTableSettings(ctx, 10)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func (a *Application) registerRouter() {
 	router := gin.New()
 	router.Use(gin.Logger())
@@ -90,6 +150,8 @@ func (a *Application) registerRepositories() {
 		return
 	}
 	a.Repositories.UserRepository = repositories.NewGormUserRepository(a.DB)
+	a.Repositories.TableRepository = repositories.NewGormTableRepository(a.DB)
+	a.Repositories.ReservationRepository = repositories.NewGormReservationRepository(a.DB)
 }
 
 func (a *Application) registerServices() {

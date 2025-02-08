@@ -26,8 +26,8 @@ func NewJWTManger(secretKey string) (Manager, error) {
 }
 
 // GenerateToken generates a new JWT token
-func (m *JWTManager) GenerateToken(username string, duration time.Duration) (string, error) {
-	payload, err := NewPayload(username, duration)
+func (m *JWTManager) GenerateToken(userID int, duration time.Duration) (string, error) {
+	payload, err := NewPayload(userID, duration)
 	if err != nil {
 		return "", err
 	}

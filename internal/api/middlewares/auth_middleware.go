@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	AuthUsernameKey         = "auth_username"
+	AuthUserIDKey           = "auth_user_id"
 	AuthorizationTypeBearer = "Bearer"
 )
 
 // AuthMiddleware is a Gin middleware that is used to authenticate the request
-func AuthMiddleware(tokenMaker token.Manager) gin.HandlerFunc {
+func AuthMiddleware(tokenManager token.Manager) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 
@@ -34,14 +34,14 @@ func AuthMiddleware(tokenMaker token.Manager) gin.HandlerFunc {
 		}
 
 		accessToken := parts[1]
-		payload, err := tokenMaker.VerifyToken(accessToken)
+		payload, err := tokenManager.VerifyToken(accessToken)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "Invalid or expired token",
 			})
 			return
 		}
-		ctx.Set(AuthUsernameKey, payload.Username)
+		ctx.Set(AuthUserIDKey, payload.UserID)
 		ctx.Next()
 	}
 }

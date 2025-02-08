@@ -48,7 +48,7 @@ func LoginAction(userRepo user.Repository, tokenManager token.Manager, tokenDura
 			return
 		}
 
-		token, err := tokenManager.GenerateToken(u.Username, tokenDuration)
+		token, err := tokenManager.GenerateToken(u.ID, tokenDuration)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

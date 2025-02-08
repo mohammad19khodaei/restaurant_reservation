@@ -26,6 +26,7 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	app.InitDB(ctx)
 	app.Run(ctx)
 
 	closeSignal := make(chan os.Signal, 1)

@@ -11,53 +11,53 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestJWTMaker(t *testing.T) {
-	jwtMaker, err := token.NewJWTManger(faker.Sentence())
+func TestJWTManager(t *testing.T) {
+	jwtManager, err := token.NewJWTManger(faker.Sentence())
 	require.NoError(t, err)
-	require.NotEmpty(t, jwtMaker)
+	require.NotEmpty(t, jwtManager)
 
-	username := faker.Name()
+	userID := 1
 	duration := time.Minute
-	tokenString, err := jwtMaker.GenerateToken(username, duration)
+	tokenString, err := jwtManager.GenerateToken(userID, duration)
 	require.NoError(t, err)
 	require.NotEmpty(t, tokenString)
 
-	payload, err := jwtMaker.VerifyToken(tokenString)
+	payload, err := jwtManager.VerifyToken(tokenString)
 	require.NoError(t, err)
 	require.NotEmpty(t, payload)
-	require.Equal(t, username, payload.Username)
+	require.Equal(t, userID, payload.UserID)
 	require.WithinDuration(t, time.Now(), payload.IssuedAt.Time, time.Second)
 	require.WithinDuration(t, time.Now().Add(duration), payload.ExpiresAt.Time, time.Second)
 }
 
-func TestJWTMakerWithExpiredToken(t *testing.T) {
-	jwtMaker, err := token.NewJWTManger(faker.Sentence())
+func TestJWTManagerWithExpiredToken(t *testing.T) {
+	jwtManager, err := token.NewJWTManger(faker.Sentence())
 	require.NoError(t, err)
-	require.NotEmpty(t, jwtMaker)
+	require.NotEmpty(t, jwtManager)
 
-	tokenString, err := jwtMaker.GenerateToken(faker.Name(), -time.Minute)
+	tokenString, err := jwtManager.GenerateToken(1, -time.Minute)
 	require.NoError(t, err)
 	require.NotEmpty(t, tokenString)
 
-	payload, err := jwtMaker.VerifyToken(tokenString)
+	payload, err := jwtManager.VerifyToken(tokenString)
 	require.Error(t, err)
 	require.True(t, errors.Is(err, jwt.ErrTokenExpired))
 	require.Empty(t, payload)
 }
 
-func TestJWTMakerInvalidToken(t *testing.T) {
-	jwtMaker, err := token.NewJWTManger(faker.Sentence())
+func TestJWTManagerInvalidToken(t *testing.T) {
+	jwtManager, err := token.NewJWTManger(faker.Sentence())
 	require.NoError(t, err)
-	require.NotEmpty(t, jwtMaker)
+	require.NotEmpty(t, jwtManager)
 
-	payload, err := token.NewPayload(faker.Name(), time.Minute)
+	payload, err := token.NewPayload(1, time.Minute)
 	require.NoError(t, err)
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodNone, payload)
 	tokenString, err := jwtToken.SignedString(jwt.UnsafeAllowNoneSignatureType)
 	require.NoError(t, err)
 
-	payload, err = jwtMaker.VerifyToken(tokenString)
+	payload, err = jwtManager.VerifyToken(tokenString)
 	require.Error(t, err)
 	require.Empty(t, payload)
 	require.True(t, errors.Is(err, token.ErrInvalidToken))
