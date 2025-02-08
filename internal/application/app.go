@@ -135,6 +135,10 @@ func (a *Application) registerRouter() {
 }
 
 func (a *Application) registerDatabase() error {
+	if a.Config.App.TestingMode {
+		return nil
+	}
+
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", a.Config.Database.Host, a.Config.Database.Username, a.Config.Database.Password, a.Config.Database.Name, a.Config.Database.Port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

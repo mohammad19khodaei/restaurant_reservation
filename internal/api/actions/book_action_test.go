@@ -33,7 +33,7 @@ func TestBookAction(t *testing.T) {
 			name: "booking a complete table",
 			requestBody: bookRequest{
 				SeatsCount: 4,
-				Date:       time.Now().Format("2006-01-02"),
+				Date:       time.Now().AddDate(0, 0, 1).Format("2006-01-02"),
 			},
 			setAuthHeader: func(t *testing.T, manager token.Manager, req *http.Request) {
 				token, err := manager.GenerateToken(userID, c.App.TokenDuration)
@@ -67,7 +67,7 @@ func TestBookAction(t *testing.T) {
 			name: "booking a odd number of seats",
 			requestBody: bookRequest{
 				SeatsCount: 3,
-				Date:       time.Now().Format("2006-01-02"),
+				Date:       time.Now().AddDate(0, 0, 1).Format("2006-01-02"),
 			},
 			setAuthHeader: func(t *testing.T, manager token.Manager, req *http.Request) {
 				token, err := manager.GenerateToken(userID, c.App.TokenDuration)
@@ -101,7 +101,7 @@ func TestBookAction(t *testing.T) {
 			name: "no tables are available",
 			requestBody: bookRequest{
 				SeatsCount: 8,
-				Date:       time.Now().Format("2006-01-02"),
+				Date:       time.Now().AddDate(0, 0, 1).Format("2006-01-02"),
 			},
 			setAuthHeader: func(t *testing.T, manager token.Manager, req *http.Request) {
 				token, err := manager.GenerateToken(userID, c.App.TokenDuration)
