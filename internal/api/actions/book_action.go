@@ -40,6 +40,11 @@ func BookAction(reservationRepo reservation.Repository) gin.HandlerFunc {
 			return
 		}
 
+		if time.Now().After(date) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date, should be in the future"})
+			return
+		}
+
 		seatsCount := requestBody.SeatsCount
 		if seatsCount%2 != 0 {
 			seatsCount++
