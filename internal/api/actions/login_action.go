@@ -57,8 +57,8 @@ func LoginAction(userRepo user.Repository, tokenManager token.Manager, tokenDura
 		ctx.JSON(http.StatusOK, LoginResponse{
 			AccessToken: token,
 			User: UserResponse{
-				Username:  u.Username,
-				CreatedAt: u.CreatedAt,
+				ID:       u.ID,
+				Username: u.Username,
 			},
 		})
 	}

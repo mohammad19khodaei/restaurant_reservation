@@ -3,7 +3,6 @@ package actions
 import (
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mohammad19khodaei/restaurant_reservation/internal/domains/user"
@@ -17,8 +16,8 @@ type RegisterUserRequest struct {
 }
 
 type UserResponse struct {
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID       int    `json:"id"`
+	Username string `json:"username"`
 }
 
 // RegisterUserAction is the action for registering a user
@@ -51,8 +50,8 @@ func RegisterUserAction(userRepo user.Repository) gin.HandlerFunc {
 		}
 
 		ctx.JSON(http.StatusCreated, UserResponse{
-			Username:  u.Username,
-			CreatedAt: u.CreatedAt,
+			ID:       u.ID,
+			Username: u.Username,
 		})
 	}
 }
