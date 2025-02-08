@@ -56,3 +56,17 @@ func (mr *ReservationMockRepositoryMockRecorder) BookTable(ctx, userID, seatsNee
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BookTable", reflect.TypeOf((*ReservationMockRepository)(nil).BookTable), ctx, userID, seatsNeeded, date)
 }
+
+// CancelReservation mocks base method.
+func (m *ReservationMockRepository) CancelReservation(ctx context.Context, reservationID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelReservation", ctx, reservationID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CancelReservation indicates an expected call of CancelReservation.
+func (mr *ReservationMockRepositoryMockRecorder) CancelReservation(ctx, reservationID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelReservation", reflect.TypeOf((*ReservationMockRepository)(nil).CancelReservation), ctx, reservationID)
+}

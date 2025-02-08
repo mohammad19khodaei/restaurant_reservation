@@ -12,5 +12,5 @@ func (a *Application) RegisterRoutes() {
 	authRoute := a.Router.Group("/").Use(middlewares.AuthMiddleware(a.Services.TokenManger))
 
 	authRoute.POST("book", actions.BookAction(a.Repositories.ReservationRepository))
-	authRoute.POST("cancel", actions.CancelAction())
+	authRoute.POST("cancel", actions.CancelAction(a.Repositories.ReservationRepository))
 }

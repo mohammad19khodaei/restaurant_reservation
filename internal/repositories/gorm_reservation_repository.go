@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/mohammad19khodaei/restaurant_reservation/internal/domains/reservation"
@@ -24,7 +25,7 @@ func (r *GormReservationRepository) BookTable(ctx context.Context, userID int, s
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
-			panic(r) // Re-panic to propagate unexpected errors
+			panic(r)
 		} else if tx.Error != nil {
 			tx.Rollback()
 		}
@@ -64,14 +65,12 @@ func (r *GormReservationRepository) BookTable(ctx context.Context, userID int, s
 		JOIN seat_price sp ON true;
 	`
 
-	// Prevent scanning errors if no row is found
 	row := tx.Raw(query, date, seatsNeeded, seatsNeeded, seatsNeeded).Row()
 	if err := row.Scan(&tableID, &seatPrice, &totalPrice); err != nil {
 		tx.Rollback()
 		return nil, reservation.ErrNoTablesAreAvailable
 	}
 
-	// Insert the reservation within the transaction
 	newReservation := reservation.Reservation{
 		UserID:     uint(userID),
 		TableID:    tableID,
@@ -84,10 +83,42 @@ func (r *GormReservationRepository) BookTable(ctx context.Context, userID int, s
 		return nil, err
 	}
 
-	// Ensure commit is successful
 	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
 
 	return &newReservation, nil
+}
+
+// CancelReservation cancels a reservation by its ID
+func (r *GormReservationRepository) CancelReservation(ctx context.Context, reservationID int) error {
+	tx := r.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r)
+		} else if tx.Error != nil {
+			tx.Rollback()
+		}
+	}()
+
+	var resv reservation.Reservation
+	if err := tx.First(&resv, reservationID).Error; err != nil {
+		tx.Rollback()
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return reservation.ErrReservationNotFound
+		}
+		return err
+	}
+
+	if err := tx.Delete(&resv).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

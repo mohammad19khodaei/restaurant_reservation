@@ -2,7 +2,6 @@ package actions
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"time"
 
@@ -47,7 +46,6 @@ func BookAction(reservationRepo reservation.Repository) gin.HandlerFunc {
 		}
 
 		userID := ctx.MustGet(middlewares.AuthUserIDKey).(int)
-		log.Println(userID)
 
 		resv, err := reservationRepo.BookTable(ctx, userID, seatsCount, date)
 		if err != nil {
