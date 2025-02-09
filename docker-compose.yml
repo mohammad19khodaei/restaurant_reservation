@@ -9,9 +9,6 @@ services:
       POSTGRES_DB: restaurant_reservation
     volumes:
       - pgdata:/var/lib/postgresql/data
-    # TODO remove this line after finishing development
-    ports: 
-      - "5432:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "admin", "-d", "restaurant_reservation"]
       interval: 5s

@@ -6,7 +6,7 @@ app:
   token_duration: 1m
 
 db:
-  host: localhost
+  host: restaurant_db
   port: 5432
   username: admin
   password: secret
